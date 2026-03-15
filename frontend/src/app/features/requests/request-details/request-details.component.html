@@ -1,0 +1,146 @@
+<div *ngIf="loading" class="loading">Loading...</div>
+<div *ngIf="error" class="error-msg">{{ error }}</div>
+
+<ng-container *ngIf="request && !loading">
+  <div class="page-header">
+    <div>
+      <h2>{{ request.title }}</h2>
+      <span class="badge badge-{{ request.status }}">{{ request.status }}</span>
+    </div>
+    <a routerLink="/requests" class="btn-secondary">← Back</a>
+  </div>
+
+  <div class="details-grid">
+    <div class="detail-card">
+      <h3>Request Details</h3>
+      <p><strong>Description:</strong> {{ request.description }}</p>
+      <p><strong>Category:</strong> {{ request.category?.name }}</p>
+      <p><strong>Location:</strong> {{ request.location }}</p>
+      <p><strong>Posted by:</strong> {{ request.resident?.name }}</p>
+      <p *ngIf="request.assignedProvider">
+        <strong>Assigned to:</strong> {{ request.assignedProvider?.name }}
+      </p>
+      <p><strong>Posted:</strong> {{ request.createdAt | date: "medium" }}</p>
+      <button
+        *ngIf="
+          auth.isResident &&
+          isOwnRequest &&
+          (request.status === 'open' || request.status === 'quoted')
+        "
+        (click)="cancelRequest()"
+        class="btn-danger"
+        [disabled]="actionLoading"
+      >
+        Cancel Request
+      </button>
+    </div>
+
+    <div class="quotes-section">
+      <h3>Quotes ({{ quotes.length }})</h3>
+
+      <div
+        *ngIf="
+          auth.isProvider &&
+          (request.status === 'open' || request.status === 'quoted')
+        "
+        class="quote-form"
+      >
+        <h4>Submit Your Quote</h4>
+        <form [formGroup]="quoteForm" (ngSubmit)="submitQuote()">
+          <div class="field">
+            <label>Price ($) *</label>
+            <input
+              formControlName="price"
+              type="number"
+              min="0"
+              placeholder="0.00"
+            />
+            <span
+              class="error"
+              *ngIf="
+                quoteForm.get('price')?.touched &&
+                quoteForm.get('price')?.errors?.['required']
+              "
+              >Price is required</span
+            >
+            <span
+              class="error"
+              *ngIf="
+                quoteForm.get('price')?.touched &&
+                quoteForm.get('price')?.errors?.['min']
+              "
+              >Price cannot be negative</span
+            >
+          </div>
+          <div class="field">
+            <label>Days to Complete *</label>
+            <input
+              formControlName="daysToComplete"
+              type="number"
+              min="1"
+              max="365"
+              placeholder="e.g. 3"
+            />
+            <span
+              class="error"
+              *ngIf="
+                quoteForm.get('daysToComplete')?.touched &&
+                quoteForm.get('daysToComplete')?.errors?.['required']
+              "
+              >Required</span
+            >
+          </div>
+          <div class="field">
+            <label>Message</label>
+            <textarea
+              formControlName="message"
+              rows="2"
+              placeholder="Optional message to the resident"
+            ></textarea>
+          </div>
+          <div class="server-error" *ngIf="quoteError">{{ quoteError }}</div>
+          <button type="submit" [disabled]="actionLoading" class="btn-primary">
+            {{ actionLoading ? "Submitting..." : "Submit Quote" }}
+          </button>
+        </form>
+      </div>
+
+      <div *ngIf="quotes.length === 0 && !quotesLoading" class="empty">
+        No quotes yet.
+      </div>
+      <div *ngIf="quotesLoading" class="loading">Loading quotes...</div>
+
+      <div
+        *ngFor="let item of quotes"
+        class="quote-card quote-{{ item.status }}"
+      >
+        <div class="quote-header">
+          <span class="provider-name">{{ item.provider?.name }}</span>
+          <span class="badge badge-{{ getQuoteStatusBadge(item.status) }}">{{
+            item.status
+          }}</span>
+        </div>
+        <div class="quote-details">
+          <span
+            ><strong>${{ item.price }}</strong></span
+          >
+          <span>{{ item.daysToComplete }} days</span>
+        </div>
+        <p *ngIf="item.message" class="quote-msg">{{ item.message }}</p>
+        <button
+          *ngIf="
+            auth.isResident &&
+            isOwnRequest &&
+            item.status === 'pending' &&
+            (request.status === 'open' || request.status === 'quoted')
+          "
+          (click)="acceptQuote(item._id)"
+          [disabled]="actionLoading"
+          class="btn-accept"
+        >
+          Accept Quote
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-container>

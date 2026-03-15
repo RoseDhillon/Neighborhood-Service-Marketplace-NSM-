@@ -1,0 +1,356 @@
+{
+  "info": {
+    "name": "NSM - Neighborhood Service Marketplace",
+    "description": "Complete Postman collection covering all required workflow tests for the NSM assignment.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000/api" },
+    { "key": "categoryId", "value": "" },
+    { "key": "requestId", "value": "" },
+    { "key": "quoteId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "1. Register Resident",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Has user in response', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json.user).to.exist;",
+                  "  pm.expect(json.user.role).to.equal('resident');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Alice Resident\",\n  \"email\": \"alice@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"resident\"\n}"
+            }
+          }
+        },
+        {
+          "name": "2. Login Resident",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Session cookie set', () => {",
+                  "  pm.expect(pm.cookies.has('connect.sid')).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"alice@example.com\",\n  \"password\": \"password123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "3. Register Provider",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Role is provider', () => {",
+                  "  pm.expect(pm.response.json().user.role).to.equal('provider');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Bob Provider\",\n  \"email\": \"bob@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"provider\"\n}"
+            }
+          }
+        },
+        {
+          "name": "4. Login Provider",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('User is provider', () => {",
+                  "  pm.expect(pm.response.json().user.role).to.equal('provider');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"bob@example.com\",\n  \"password\": \"password123\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "5. Create Category (login as resident first)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('categoryId', json.category._id);",
+                  "pm.test('Category ID saved', () => pm.expect(json.category._id).to.exist);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/categories",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Plumbing\",\n  \"description\": \"All plumbing services\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Service Requests",
+      "item": [
+        {
+          "name": "6. Create Request (as resident)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('requestId', json.request._id);",
+                  "pm.test('Status is open', () => pm.expect(json.request.status).to.equal('open'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/requests",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Fix leaking kitchen tap\",\n  \"description\": \"My kitchen tap has been leaking for two days and needs urgent repair.\",\n  \"category\": \"{{categoryId}}\",\n  \"location\": \"123 Main Street, Toronto\"\n}"
+            }
+          }
+        },
+        {
+          "name": "7. List Open Requests (with filter)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Returns array', () => {",
+                  "  pm.expect(pm.response.json().requests).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/requests?status=open",
+              "host": ["{{baseUrl}}"],
+              "path": ["requests"],
+              "query": [{ "key": "status", "value": "open" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Quotes",
+      "item": [
+        {
+          "name": "8. Submit Quote (as provider)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('quoteId', json.quote._id);",
+                  "pm.test('Quote is pending', () => pm.expect(json.quote.status).to.equal('pending'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/quotes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"requestId\": \"{{requestId}}\",\n  \"price\": 150,\n  \"daysToComplete\": 2,\n  \"message\": \"I can fix this quickly with quality parts.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "9. Resident View Quotes (login as resident first)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Has quotes array', () => {",
+                  "  pm.expect(pm.response.json().quotes).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/quotes?requestId={{requestId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["quotes"],
+              "query": [{ "key": "requestId", "value": "{{requestId}}" }]
+            }
+          }
+        },
+        {
+          "name": "10. Accept Quote (as resident)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Quote accepted', () => {",
+                  "  pm.expect(pm.response.json().quote.status).to.equal('accepted');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/quotes/{{quoteId}}/accept",
+            "body": { "mode": "raw", "raw": "{}" }
+          }
+        },
+        {
+          "name": "11. Verify Request Assigned",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Request is now assigned', () => {",
+                  "  pm.expect(pm.response.json().request.status).to.equal('assigned');",
+                  "});",
+                  "pm.test('Has assigned provider', () => {",
+                  "  pm.expect(pm.response.json().request.assignedProvider).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/requests/{{requestId}}"
+          }
+        },
+        {
+          "name": "12. Verify Rejected Quotes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('All non-accepted quotes are rejected', () => {",
+                  "  const quotes = pm.response.json().quotes;",
+                  "  const nonAccepted = quotes.filter(q => q.status !== 'accepted');",
+                  "  nonAccepted.forEach(q => pm.expect(q.status).to.equal('rejected'));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/quotes?requestId={{requestId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["quotes"],
+              "query": [{ "key": "requestId", "value": "{{requestId}}" }]
+            }
+          }
+        },
+        {
+          "name": "13. Idempotency - Reject Duplicate Accept",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 409 Conflict', () => pm.response.to.have.status(409));",
+                  "pm.test('Error message present', () => {",
+                  "  pm.expect(pm.response.json().message).to.include('already been accepted');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/quotes/{{quoteId}}/accept",
+            "body": { "mode": "raw", "raw": "{}" }
+          }
+        }
+      ]
+    }
+  ]
+}

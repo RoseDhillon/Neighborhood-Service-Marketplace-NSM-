@@ -1,0 +1,36 @@
+<h2>My Quotes</h2>
+<div *ngIf="loading" class="loading">Loading your quotes...</div>
+<div *ngIf="error" class="error-msg">{{ error }}</div>
+<div *ngIf="!loading && quotes.length === 0" class="empty">
+  You haven't submitted any quotes yet.
+</div>
+
+<div class="quote-list" *ngIf="!loading && quotes.length > 0">
+  <div *ngFor="let item of quotes" class="quote-card">
+    <div class="quote-top">
+      <div>
+        <a [routerLink]="['/requests', item.request._id]" class="request-title">
+          {{ item.request.title }}
+        </a>
+        <div class="request-meta">
+          <span>{{ item.request.category?.name }}</span>
+          <span>{{ item.request.location }}</span>
+          <span class="badge badge-req-{{ item.request.status }}">{{
+            item.request.status
+          }}</span>
+        </div>
+      </div>
+      <span class="badge badge-{{ getStatusBadge(item.status) }}">{{
+        item.status
+      }}</span>
+    </div>
+    <div class="quote-details">
+      <span
+        ><strong>${{ item.price }}</strong></span
+      >
+      <span>{{ item.daysToComplete }} days</span>
+      <span>Submitted {{ item.createdAt | date: "mediumDate" }}</span>
+    </div>
+    <p *ngIf="item.message" class="quote-msg">"{{ item.message }}"</p>
+  </div>
+</div>
