@@ -6,13 +6,13 @@ A full-stack web application built with Node.js, Express, MongoDB, and Angular t
 
 ## Group Members
 
-| Name      | Student Number | Role                                    |
-| --------- | -------------- | --------------------------------------- |
-| Student 1 | 100XXXXX       | Backend – Auth & Models                 |
-| Student 2 | 100XXXXX       | Backend – Requests & Categories         |
-| Student 3 | 100XXXXX       | Backend – Quotes & Lifecycle Logic      |
-| Student 4 | 100XXXXX       | Angular Frontend – Auth, Requests       |
-| Student 5 | 100XXXXX       | Angular Frontend – Quotes, Guards, Docs |
+| Name                   | Role                                    |
+| ---------------------- | --------------------------------------- |
+| Rosenoor Singh Dhillon | Backend – Auth & Models                 |
+| Thi Tieu Man Tran      | Backend – Requests & Categories         |
+| Kim Joson              | Backend – Quotes & Lifecycle Logic      |
+| Adit Rakeshkumar Rana  | Angular Frontend – Auth, Requests       |
+| Gurleen Kaur           | Angular Frontend – Quotes, Guards, Docs |
 
 ---
 
