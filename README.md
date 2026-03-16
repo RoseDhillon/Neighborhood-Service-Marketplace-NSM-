@@ -13,6 +13,7 @@ A full-stack web application built with Node.js, Express, MongoDB, and Angular t
 | Kim Joson              | Backend – Quotes & Lifecycle Logic      |
 | Adit Rakeshkumar Rana  | Angular Frontend – Auth, Requests       |
 | Gurleen Kaur           | Angular Frontend – Quotes, Guards, Docs |
+| Li Zixin               | Overall Testing and help with the code  |
 
 ---
 
