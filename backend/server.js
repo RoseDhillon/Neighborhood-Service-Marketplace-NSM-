@@ -34,7 +34,7 @@ app.use(
     secret: process.env.SESSION_SECRET || "changeme",
     resave: false,
     saveUninitialized: false,
-    store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
+    store: MongoStore.create({ mongoUrl: "mongodb://localhost:27017/nsm" }),
     cookie: {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",

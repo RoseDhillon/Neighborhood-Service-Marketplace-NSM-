@@ -1,10 +1,10 @@
-import { Component } from "@angular/core"
-import { Router, RouterOutlet, RouterLink } from "@angular/router"
-import { CommonModule } from "@angular/common"
-import { AuthService } from "./core/services/auth.service"
+import { Component } from '@angular/core';
+import { Router, RouterOutlet, RouterLink } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { AuthService } from './core/services/auth.service';
 
 @Component({
-  selector: "app-root",
+  selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet, RouterLink, CommonModule],
   template: `
@@ -15,9 +15,7 @@ import { AuthService } from "./core/services/auth.service"
           <a routerLink="/requests">Requests</a>
           <a *ngIf="auth.isResident" routerLink="/requests/new">New Request</a>
           <a *ngIf="auth.isProvider" routerLink="/my-quotes">My Quotes</a>
-          <span class="user-info"
-            >{{ auth.currentUser?.name }} ({{ auth.currentUser?.role }})</span
-          >
+          <span class="user-info">{{ auth.currentUser?.name }} ({{ auth.currentUser?.role }})</span>
           <button (click)="logout()" class="btn-logout">Logout</button>
         </ng-container>
         <ng-template #guestLinks>
@@ -85,6 +83,6 @@ export class AppComponent {
   ) {}
 
   logout(): void {
-    this.auth.logout().subscribe(() => this.router.navigate(["/login"]))
+    this.auth.logout().subscribe(() => this.router.navigate(['/login']));
   }
 }
